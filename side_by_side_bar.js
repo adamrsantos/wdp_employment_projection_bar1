@@ -51,6 +51,7 @@ function parseCsv(csvText) {
         industry: (cols[0] || "").trim(),
         replacement_openings: parseFloat(cols[1]),
         new_openings: parseFloat(cols[2]),
+        pct_label: (cols[3] || "").trim(),
         median_wage: parseFloat(cols[4]),
       };
     })
@@ -68,7 +69,8 @@ function parseCsv(csvText) {
 function initChart(csvText, leftContainerId = "left-chart", rightContainerId = "right-chart") {
   const data = parseCsv(csvText);
   const categories = data.map((row) => row.industry);
-
+  const labels = data.map((row) => row['pct_label']);
+  const wages = data.map((row) => row['median_wage']);
   Highcharts.chart(leftContainerId, {
     chart: {
       type: "bar",
@@ -107,6 +109,7 @@ function initChart(csvText, leftContainerId = "left-chart", rightContainerId = "
         stacking: "normal",
         dataLabels: {
           enabled: false,
+          
         },
       },
     },
@@ -122,6 +125,14 @@ function initChart(csvText, leftContainerId = "left-chart", rightContainerId = "
         name: "New openings",
         color: "#ffbe46",
         data: data.map((row) => row.new_openings),
+        dataLabels: {
+          enabled: true,
+          align: 'left',
+          formatter: function() {
+            const label = labels[this.key];
+            return '<b>' + label + '%</b>';
+          }
+        }
       },
       {
         name: "Replacement openings",
@@ -182,6 +193,16 @@ function initChart(csvText, leftContainerId = "left-chart", rightContainerId = "
         name: "Median Wage",
         color: "#b371c1",
         data: data.map((row) => row.median_wage),
+        dataLabels: {
+          enabled: true,
+          align: 'center',
+          inside: true,
+          color: '#fff',
+          formatter: function() {
+            const wage = wages[this.key];
+            return '<b>$' + wage + '</b>';
+          }
+        }
       },
     ],
     credits: { enabled: false },
